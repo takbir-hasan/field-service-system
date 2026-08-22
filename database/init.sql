@@ -103,3 +103,23 @@ CREATE TABLE ticket_status_history (
         changed_at
     )
 );
+
+
+CREATE TABLE ticket_watchers (
+    ticket_id BIGINT UNSIGNED NOT NULL,
+    user_id BIGINT UNSIGNED NOT NULL,
+
+    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (ticket_id, user_id),
+
+    CONSTRAINT fk_watcher_ticket
+        FOREIGN KEY (ticket_id)
+        REFERENCES tickets(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_watcher_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+);

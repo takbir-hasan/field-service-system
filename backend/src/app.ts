@@ -11,7 +11,7 @@ app.use(express.json());
 app.get("/api/health", (_req, res) => {
   res.json({
     success: true,
-    message: "Field Service API is running"
+    message: "Field Service API is running",
   });
 });
 
