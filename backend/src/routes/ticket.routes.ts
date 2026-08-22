@@ -37,25 +37,6 @@ router.get(
   asyncHandler(getTicketsController)
 );
 
-router.get(
-  "/:id",
-  asyncHandler(getTicketController)
-);
-
-router.patch(
-  "/:id/status",
-  authorize("ADMIN", "TECHNICIAN"),
-  validate(updateStatusSchema),
-  asyncHandler(updateStatusController)
-);
-
-router.post(
-  "/:id/assign",
-  authorize("ADMIN"),
-  validate(assignTicketSchema),
-  asyncHandler(assignTicketController)
-);
-
 router.post(
   "/:id/comments",
   validate(createCommentSchema),
@@ -65,6 +46,25 @@ router.post(
 router.get(
   "/:id/comments",
   asyncHandler(getCommentsController)
+);
+
+router.post(
+  "/:id/assign",
+  authorize("ADMIN"),
+  validate(assignTicketSchema),
+  asyncHandler(assignTicketController)
+);
+
+router.patch(
+  "/:id/status",
+  authorize("ADMIN", "TECHNICIAN"),
+  validate(updateStatusSchema),
+  asyncHandler(updateStatusController)
+);
+
+router.get(
+  "/:id",
+  asyncHandler(getTicketController)
 );
 
 export default router;

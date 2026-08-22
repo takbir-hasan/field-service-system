@@ -57,11 +57,20 @@ export const getTickets = async ({
   page: number;
   limit: number;
 }) => {
-  const offset = (page - 1) * limit;
+  // Validate pagination values
+  const safePage = Math.max(1, Number(page) || 1);
+
+  const safeLimit = Math.min(
+    100,
+    Math.max(1, Number(limit) || 10)
+  );
+
+  const offset = (safePage - 1) * safeLimit;
 
   const conditions: string[] = [];
-  const values: any[] = [];
+  const values: string[] = [];
 
+  // Search
   if (search) {
     conditions.push(`
       (
@@ -76,11 +85,13 @@ export const getTickets = async ({
     );
   }
 
+  // Status filter
   if (status) {
     conditions.push(`t.status = ?`);
     values.push(status);
   }
 
+  // Priority filter
   if (priority) {
     conditions.push(`t.priority = ?`);
     values.push(priority);
@@ -121,9 +132,9 @@ export const getTickets = async ({
 
       ORDER BY t.created_at DESC
 
-      LIMIT ? OFFSET ?
+      LIMIT ${safeLimit} OFFSET ${offset}
     `,
-    [...values, limit, offset]
+    values
   );
 
   return rows;

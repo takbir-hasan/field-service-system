@@ -7,6 +7,9 @@ import authRoutes from "./routes/auth.routes";
 import dashboardRoutes from "./routes/dashboard.routes";
 import ticketRoutes from "./routes/ticket.routes";
 
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./config/swagger";
+
 const app = express();
 
 app.use(...securityMiddleware);
@@ -18,6 +21,15 @@ app.use(
 );
 
 app.use("/api", apiLimiter);
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use("/api/health", (req, res) => {
+  res.status(200).json({ 
+    success: true,
+    message: "Server is healthy",
+    timestamp: new Date().toISOString(),
+   });
+});
 
 // routes
 app.use("/api/auth", authRoutes);
