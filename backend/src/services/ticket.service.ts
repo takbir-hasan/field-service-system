@@ -1,3 +1,4 @@
+import { AppError } from "../errors/AppError";
 import {
   createTicket as insertTicket,
   getTickets as fetchTickets,
@@ -38,9 +39,11 @@ export const getTicket = async (
   const ticket = await findTicketById(ticketId);
 
   if (!ticket) {
-    throw new Error("Ticket not found");
+    throw new AppError(
+      404,
+      "Ticket not found"
+    );
   }
-
   return ticket;
 };
 
@@ -49,6 +52,14 @@ export const changeTicketStatus = async (
   status: string,
   changedBy: number
 ) => {
+
+  const ticket = await findTicketById(ticketId);
+  if (!ticket) {
+    throw new AppError(
+      404,
+      "Ticket not found"
+    );
+  }
   return updateTicketStatusWithHistory(
     ticketId,
     status,
@@ -80,7 +91,10 @@ export const addComment = async (
   const ticket = await findTicketById(ticketId);
 
   if (!ticket) {
-    throw new Error("Ticket not found");
+    throw new AppError(
+      404,
+      "Ticket not found"
+    );
   }
 
   const commentId = await insertComment(
@@ -98,7 +112,10 @@ export const getComments = async (
   const ticket = await findTicketById(ticketId);
 
   if (!ticket) {
-    throw new Error("Ticket not found");
+    throw new AppError(
+      404,
+      "Ticket not found"
+    );
   }
 
   return fetchTicketComments(ticketId);

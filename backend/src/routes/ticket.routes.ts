@@ -12,6 +12,15 @@ import {
 
 import { authenticate } from "../middlewares/auth.middleware";
 import { authorize } from "../middlewares/role.middleware";
+import { validate } from "../middlewares/validate.middleware";
+import { asyncHandler } from "../middlewares/async.middleware";
+
+import {
+  createTicketSchema,
+  updateStatusSchema,
+  assignTicketSchema,
+  createCommentSchema,
+} from "../validators/ticket.validator";
 
 const router = Router();
 
@@ -19,39 +28,43 @@ router.use(authenticate);
 
 router.post(
   "/",
-  createTicketController
+  validate(createTicketSchema),
+  asyncHandler(createTicketController),
 );
-
+  
 router.get(
   "/",
-  getTicketsController
+  asyncHandler(getTicketsController)
 );
 
 router.get(
   "/:id",
-  getTicketController
+  asyncHandler(getTicketController)
 );
 
 router.patch(
   "/:id/status",
   authorize("ADMIN", "TECHNICIAN"),
-  updateStatusController
+  validate(updateStatusSchema),
+  asyncHandler(updateStatusController)
 );
 
 router.post(
   "/:id/assign",
   authorize("ADMIN"),
-  assignTicketController
+  validate(assignTicketSchema),
+  asyncHandler(assignTicketController)
 );
 
 router.post(
   "/:id/comments",
-  createCommentController
+  validate(createCommentSchema),
+  asyncHandler(createCommentController)
 );
 
 router.get(
   "/:id/comments",
-  getCommentsController
+  asyncHandler(getCommentsController)
 );
 
 export default router;
