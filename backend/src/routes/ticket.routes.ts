@@ -6,6 +6,8 @@ import {
   getTicketController,
   updateStatusController,
   assignTicketController,
+  getCommentsController,
+  createCommentController,
 } from "../controllers/ticket.controller";
 
 import { authenticate } from "../middlewares/auth.middleware";
@@ -40,6 +42,16 @@ router.post(
   "/:id/assign",
   authorize("ADMIN"),
   assignTicketController
+);
+
+router.post(
+  "/:id/comments",
+  createCommentController
+);
+
+router.get(
+  "/:id/comments",
+  getCommentsController
 );
 
 export default router;

@@ -6,12 +6,15 @@ import {
   getTicket,
   changeTicketStatus,
   assignTicket,
+  addComment,
+  getComments,
 } from "../services/ticket.service";
 
 import {
   createTicketSchema,
   updateStatusSchema,
   assignTicketSchema,
+  createCommentSchema,
 } from "../validators/ticket.validator";
 
 export const createTicketController = async (
@@ -106,15 +109,14 @@ export const getTicketController = async (
   try {
     const ticketId = Number(req.params.id);
 
-    if (!Number.isInteger(ticketId)) {
+    if (!Number.isInteger(ticketId) || ticketId <= 0) {
       return res.status(400).json({
         success: false,
         message: "Invalid ticket ID",
       });
     }
 
-    const ticket =
-      await getTicket(ticketId);
+    const ticket = await getTicket(ticketId);
 
     return res.status(200).json({
       success: true,
@@ -138,15 +140,23 @@ export const updateStatusController = async (
     const data =
       updateStatusSchema.parse(req.body);
 
-    const ticket =
-      await changeTicketStatus(
-        ticketId,
-        data.status
-      );
+      if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorized",
+    });
+    }
+
+  const result =
+    await changeTicketStatus(
+      ticketId,
+      data.status,
+      req.user.userId
+    );
 
     return res.status(200).json({
       success: true,
-      data: ticket,
+      data: result,
     });
   } catch (error: any) {
     return res.status(400).json({
@@ -183,3 +193,77 @@ export const assignTicketController = async (
     });
   }
 };
+
+export const createCommentController = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    const ticketId = Number(req.params.id);
+
+    if (!Number.isInteger(ticketId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid ticket ID",
+      });
+    }
+
+    const data = createCommentSchema.parse(
+      req.body
+    );
+
+    const commentId = await addComment(
+      ticketId,
+      req.user.userId,
+      data.comment
+    );
+
+    return res.status(201).json({
+      success: true,
+      data: {
+        id: commentId,
+      },
+    });
+  } catch (error: any) {
+    return res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const getCommentsController = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const ticketId = Number(req.params.id);
+
+    if (!Number.isInteger(ticketId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid ticket ID",
+      });
+    }
+
+    const comments = await getComments(ticketId);
+
+    return res.status(200).json({
+      success: true,
+      data: comments,
+    });
+  } catch (error: any) {
+    return res.status(404).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+

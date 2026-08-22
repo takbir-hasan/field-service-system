@@ -2,8 +2,10 @@ import {
   createTicket as insertTicket,
   getTickets as fetchTickets,
   findTicketById,
-  updateTicketStatus,
   assignTechnician,
+  updateTicketStatusWithHistory,
+  createComment as insertComment,
+  getTicketComments as fetchTicketComments,
 } from "../repositories/ticket.repository";
 
 export const createTicket = async (
@@ -44,20 +46,14 @@ export const getTicket = async (
 
 export const changeTicketStatus = async (
   ticketId: number,
-  status: string
+  status: string,
+  changedBy: number
 ) => {
-  const ticket = await findTicketById(ticketId);
-
-  if (!ticket) {
-    throw new Error("Ticket not found");
-  }
-
-  await updateTicketStatus(
+  return updateTicketStatusWithHistory(
     ticketId,
-    status
+    status,
+    changedBy
   );
-
-  return findTicketById(ticketId);
 };
 
 export const assignTicket = async (
@@ -75,3 +71,36 @@ export const assignTicket = async (
     technicianId
   );
 };
+
+export const addComment = async (
+  ticketId: number,
+  userId: number,
+  comment: string
+) => {
+  const ticket = await findTicketById(ticketId);
+
+  if (!ticket) {
+    throw new Error("Ticket not found");
+  }
+
+  const commentId = await insertComment(
+    ticketId,
+    userId,
+    comment
+  );
+
+  return commentId;
+};
+
+export const getComments = async (
+  ticketId: number
+) => {
+  const ticket = await findTicketById(ticketId);
+
+  if (!ticket) {
+    throw new Error("Ticket not found");
+  }
+
+  return fetchTicketComments(ticketId);
+};
+
