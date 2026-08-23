@@ -55,3 +55,26 @@ export const findUserById = async (
 
   return rows.length > 0 ? rows[0] : null;
 };
+
+export const getTechnicians = async (): Promise<
+  Pick<User, "id" | "name" | "email">[]
+> => {
+  const [rows] = await pool.execute<
+    RowDataPacket[]
+  >(
+    `
+      SELECT
+        id,
+        name,
+        email
+      FROM users
+      WHERE role = 'TECHNICIAN'
+      ORDER BY name ASC
+    `
+  );
+
+  return rows as Pick<
+    User,
+    "id" | "name" | "email"
+  >[];
+};

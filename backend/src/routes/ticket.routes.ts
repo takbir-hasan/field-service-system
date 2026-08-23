@@ -28,6 +28,7 @@ router.use(authenticate);
 
 router.post(
   "/",
+  authorize("ADMIN"),
   validate(createTicketSchema),
   asyncHandler(createTicketController),
 );

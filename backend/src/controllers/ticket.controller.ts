@@ -10,12 +10,6 @@ import {
   getComments,
 } from "../services/ticket.service";
 
-import {
-  createTicketSchema,
-  updateStatusSchema,
-  assignTicketSchema,
-  createCommentSchema,
-} from "../validators/ticket.validator";
 import { AppError } from "../errors/AppError";
 
 
@@ -129,10 +123,11 @@ export const updateStatusController = async (
   }
 
   const result = await changeTicketStatus(
-    ticketId,
-    req.body.status,
-    req.user.userId
-  );
+  ticketId,
+  req.body.status,
+  req.user.userId,
+  req.user.role
+);
 
   return res.status(200).json({
     success: true,

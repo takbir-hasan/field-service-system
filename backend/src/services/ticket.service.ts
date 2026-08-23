@@ -50,16 +50,28 @@ export const getTicket = async (
 export const changeTicketStatus = async (
   ticketId: number,
   status: string,
-  changedBy: number
+  changedBy: number,
+  role: "ADMIN" | "TECHNICIAN"
 ) => {
-
   const ticket = await findTicketById(ticketId);
+
   if (!ticket) {
     throw new AppError(
       404,
       "Ticket not found"
     );
   }
+
+  if (
+    role === "TECHNICIAN" &&
+    ticket.technician_id !== changedBy
+  ) {
+    throw new AppError(
+      403,
+      "You can only update tickets assigned to you"
+    );
+  }
+
   return updateTicketStatusWithHistory(
     ticketId,
     status,
