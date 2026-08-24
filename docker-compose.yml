@@ -35,9 +35,7 @@ services:
       start_period: 10s
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: takbirhasan/field-service-backend:latest
 
     container_name: field-service-backend
 
@@ -61,11 +59,7 @@ services:
         condition: service_healthy
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        VITE_API_BASE_URL: ${VITE_API_BASE_URL}
+    image: takbirhasan/field-service-frontend:latest
 
     container_name: field-service-frontend
 

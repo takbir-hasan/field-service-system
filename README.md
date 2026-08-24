@@ -11,6 +11,8 @@ A full-stack field service ticket management application built with React, TypeS
 - Ticket status updates and status history
 - Ticket comments and activity counts
 - Search, status, and priority filtering
+- Dynamic ticket list updates without full-page reloads
+- Shared navigation and logout across protected pages
 - Dashboard summaries and technician statistics
 - Responsive React interface
 - Swagger API documentation
@@ -51,6 +53,14 @@ Copy-Item .env.example .env
 ```
 
 Update the values in `.env`, especially the database password and JWT secret. The frontend uses `/api` when running through Docker and `http://localhost:5050/api` for local development.
+
+For local frontend development, make sure `frontend/.env` contains:
+
+```env
+VITE_API_BASE_URL=http://localhost:5050/api
+```
+
+Vite reads environment variables when it starts, so restart the frontend after changing this value.
 
 ## Run With Docker
 
@@ -145,6 +155,27 @@ The seed script is idempotent for seeded users and can be run again when needed.
 
 Change demo credentials before using the application outside local development.
 
+## User Roles
+
+| Capability | Admin | Technician |
+| --- | --- | --- |
+| View dashboard | Yes | Yes, assigned-ticket summary |
+| View tickets | All tickets | Assigned tickets only |
+| Create tickets | Yes | No |
+| Assign technicians | Yes | No |
+| Update ticket status | Yes | Only assigned tickets |
+| Add comments | Yes | Only accessible tickets |
+
+## Frontend Pages
+
+- `/login` - authentication
+- `/dashboard` - role-specific summary and technician list for admins
+- `/tickets` - ticket list, status counts, search, status filter, and priority filter
+- `/tickets/new` - admin-only ticket creation
+- `/tickets/:id` - ticket details, assignment, status updates, comments, and activity
+
+Ticket filters are applied through the API with a short debounce. The existing list remains visible while filtered data is loading, so changing a filter does not reload the browser or replace the whole page.
+
 ## Useful Commands
 
 ### Frontend
@@ -184,6 +215,28 @@ All protected endpoints require a bearer token in the `Authorization` header.
 - `GET /api/users/technicians` - list technicians
 
 Ticket list query parameters include `page`, `limit`, `search`, `status`, and `priority`.
+
+Example filtered request:
+
+```text
+GET /api/tickets?limit=100&search=network&status=IN_PROGRESS&priority=HIGH
+```
+
+Supported status values: `OPEN`, `ASSIGNED`, `IN_PROGRESS`, `COMPLETED`, `CANCELLED`.
+
+Supported priority values: `LOW`, `MEDIUM`, `HIGH`, `URGENT`.
+
+The ticket list supports up to 100 records per request. Use `page` and `limit` together when working with a larger dataset.
+
+## API Authentication
+
+First log in through `POST /api/auth/login` and use the returned token in subsequent requests:
+
+```http
+Authorization: Bearer <access-token>
+```
+
+The frontend stores the token locally for the current browser session and attaches it automatically to API requests. Logging out removes the stored token and user data, then returns the user to the login page.
 
 ## Troubleshooting
 

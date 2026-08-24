@@ -55,7 +55,7 @@ export default function AppRoutes() {
         }
       />
 
-      {/* <Route
+      <Route
         path="*"
         element={
           <Navigate
@@ -63,7 +63,7 @@ export default function AppRoutes() {
             replace
           />
         }
-      /> */}
+      />
     </Routes>
   );
 }
