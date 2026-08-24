@@ -6,6 +6,7 @@ import DashboardPage from "../pages/DashboardPage";
 import TicketsPage from "../pages/TicketsPage";
 import CreateTicketPage from "../pages/CreateTicketPage";
 import TicketDetailsPage from "../pages/TicketDetailsPage";
+import ProtectedLayout from "../layouts/ProtectedLayout";
 
 export default function AppRoutes() {
   return (
@@ -18,6 +19,7 @@ export default function AppRoutes() {
 
       {/* Protected */}
       <Route element={<ProtectedRoute />}>
+        <Route element={<ProtectedLayout />}>
           <Route
             path="/dashboard"
             element={<DashboardPage />}
@@ -29,22 +31,17 @@ export default function AppRoutes() {
         />
 
         <Route
-        path="/tickets/:id"
-        element={<TicketDetailsPage />}
-        />
+            path="/tickets/:id"
+            element={<TicketDetailsPage />}
+          />
 
-      </Route>
-
-      {/* Role-based Protected */}
-      <Route
-        element={
-          <ProtectedRoute allowedRoles={["ADMIN"]} />
-        }
-        >
-        <Route
-          path="/tickets/new"
-          element={<CreateTicketPage />}
-        />
+          <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
+            <Route
+              path="/tickets/new"
+              element={<CreateTicketPage />}
+            />
+          </Route>
+        </Route>
       </Route>
 
       {/* Default */}
@@ -58,7 +55,7 @@ export default function AppRoutes() {
         }
       />
 
-      <Route
+      {/* <Route
         path="*"
         element={
           <Navigate
@@ -66,7 +63,7 @@ export default function AppRoutes() {
             replace
           />
         }
-      />
+      /> */}
     </Routes>
   );
 }

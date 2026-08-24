@@ -125,3 +125,60 @@ export const getTechnicianStatistics = async () => {
 
   return rows;
 };
+
+export const getTechnicianDashboardSummary = async (
+  technicianId: number
+) => {
+  const [rows] = await pool.execute(
+    `
+      SELECT
+        COUNT(*) AS total_tickets,
+
+        SUM(
+          CASE
+            WHEN status = 'ASSIGNED'
+            THEN 1
+            ELSE 0
+          END
+        ) AS assigned_tickets,
+
+        SUM(
+          CASE
+            WHEN status = 'IN_PROGRESS'
+            THEN 1
+            ELSE 0
+          END
+        ) AS in_progress_tickets,
+
+        SUM(
+          CASE
+            WHEN status = 'COMPLETED'
+            THEN 1
+            ELSE 0
+          END
+        ) AS completed_tickets,
+
+        SUM(
+          CASE
+            WHEN status = 'CANCELLED'
+            THEN 1
+            ELSE 0
+          END
+        ) AS cancelled_tickets,
+
+        SUM(
+          CASE
+            WHEN priority = 'URGENT'
+            THEN 1
+            ELSE 0
+          END
+        ) AS urgent_tickets
+
+      FROM tickets
+      WHERE assigned_to = ?
+    `,
+    [technicianId]
+  );
+
+  return (rows as any[])[0];
+};

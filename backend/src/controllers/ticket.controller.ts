@@ -44,6 +44,13 @@ export const getTicketsController = async (
   req: Request,
   res: Response
 ) => {
+  if (!req.user) {
+    throw new AppError(
+      401,
+      "Unauthorized"
+    );
+  }
+
   const page = Math.max(
     Number(req.query.page) || 1,
     1
@@ -51,7 +58,7 @@ export const getTicketsController = async (
 
   const limit = Math.min(
     Number(req.query.limit) || 10,
-    50
+    100
   );
 
   const search =
@@ -69,6 +76,8 @@ export const getTicketsController = async (
     priority,
     page,
     limit,
+    requesterId: req.user.userId,
+    requesterRole: req.user.role,
   });
 
   return res.status(200).json({
@@ -85,6 +94,13 @@ export const getTicketController = async (
   req: Request,
   res: Response
 ) => {
+  if (!req.user) {
+    throw new AppError(
+      401,
+      "Unauthorized"
+    );
+  }
+
   const ticketId = Number(req.params.id);
 
   if (!Number.isInteger(ticketId) || ticketId <= 0) {
@@ -94,7 +110,11 @@ export const getTicketController = async (
     );
   }
 
-  const ticket = await getTicket(ticketId);
+  const ticket = await getTicket(
+    ticketId,
+    req.user.userId,
+    req.user.role
+  );
 
   return res.status(200).json({
     success: true,
@@ -182,7 +202,8 @@ export const createCommentController = async (
   const commentId = await addComment(
     ticketId,
     req.user.userId,
-    req.body.comment
+    req.body.comment,
+    req.user.role
   );
 
   return res.status(201).json({
@@ -197,6 +218,13 @@ export const getCommentsController = async (
   req: Request,
   res: Response
 ) => {
+  if (!req.user) {
+    throw new AppError(
+      401,
+      "Unauthorized"
+    );
+  }
+
   const ticketId = Number(req.params.id);
 
   if (!Number.isInteger(ticketId) || ticketId <= 0) {
@@ -206,7 +234,11 @@ export const getCommentsController = async (
     );
   }
 
-  const comments = await getComments(ticketId);
+  const comments = await getComments(
+    ticketId,
+    req.user.userId,
+    req.user.role
+  );
 
   return res.status(200).json({
     success: true,

@@ -50,12 +50,16 @@ export const getTickets = async ({
   priority,
   page,
   limit,
+  requesterId,
+  requesterRole,
 }: {
   search?: string;
   status?: string;
   priority?: string;
   page: number;
   limit: number;
+  requesterId: number;
+  requesterRole: "ADMIN" | "TECHNICIAN";
 }) => {
   // Validate pagination values
   const safePage = Math.max(1, Number(page) || 1);
@@ -68,7 +72,12 @@ export const getTickets = async ({
   const offset = (safePage - 1) * safeLimit;
 
   const conditions: string[] = [];
-  const values: string[] = [];
+  const values: Array<string | number> = [];
+
+  if (requesterRole === "TECHNICIAN") {
+    conditions.push("t.assigned_to = ?");
+    values.push(requesterId);
+  }
 
   // Search
   if (search) {

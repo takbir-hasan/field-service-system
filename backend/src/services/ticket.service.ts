@@ -29,12 +29,16 @@ export const getTicketList = async (params: {
   priority?: string;
   page: number;
   limit: number;
+  requesterId: number;
+  requesterRole: "ADMIN" | "TECHNICIAN";
 }) => {
   return fetchTickets(params);
 };
 
 export const getTicket = async (
-  ticketId: number
+  ticketId: number,
+  requesterId: number,
+  requesterRole: "ADMIN" | "TECHNICIAN"
 ) => {
   const ticket = await findTicketById(ticketId);
 
@@ -44,6 +48,17 @@ export const getTicket = async (
       "Ticket not found"
     );
   }
+
+  if (
+    requesterRole === "TECHNICIAN" &&
+    ticket.technician_id !== requesterId
+  ) {
+    throw new AppError(
+      403,
+      "You can only access tickets assigned to you"
+    );
+  }
+
   return ticket;
 };
 
@@ -98,16 +113,10 @@ export const assignTicket = async (
 export const addComment = async (
   ticketId: number,
   userId: number,
-  comment: string
+  comment: string,
+  role: "ADMIN" | "TECHNICIAN"
 ) => {
-  const ticket = await findTicketById(ticketId);
-
-  if (!ticket) {
-    throw new AppError(
-      404,
-      "Ticket not found"
-    );
-  }
+  await getTicket(ticketId, userId, role);
 
   const commentId = await insertComment(
     ticketId,
@@ -119,16 +128,15 @@ export const addComment = async (
 };
 
 export const getComments = async (
-  ticketId: number
+  ticketId: number,
+  requesterId: number,
+  requesterRole: "ADMIN" | "TECHNICIAN"
 ) => {
-  const ticket = await findTicketById(ticketId);
-
-  if (!ticket) {
-    throw new AppError(
-      404,
-      "Ticket not found"
-    );
-  }
+  await getTicket(
+    ticketId,
+    requesterId,
+    requesterRole
+  );
 
   return fetchTicketComments(ticketId);
 };

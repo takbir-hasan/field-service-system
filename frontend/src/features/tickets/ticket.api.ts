@@ -13,11 +13,26 @@ export interface CreateTicketPayload {
   priority: TicketPriority;
 }
 
-export const getTickets = async (): Promise<Ticket[]> => {
+export interface GetTicketsParams {
+  search?: string;
+  status?: TicketStatus;
+  priority?: TicketPriority;
+  page?: number;
+  limit?: number;
+}
+
+export const getTickets = async (
+  params: GetTicketsParams = {},
+): Promise<Ticket[]> => {
   const response = await api.get<{
     success: boolean;
     data: Ticket[];
-  }>("/tickets");
+  }>("/tickets", {
+    params: {
+      limit: 100,
+      ...params,
+    },
+  });
 
   return response.data.data;
 };

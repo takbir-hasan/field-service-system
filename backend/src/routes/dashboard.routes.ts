@@ -3,6 +3,7 @@ import { Router } from "express";
 import {
   getDashboardSummaryController,
   getTechnicianStatisticsController,
+  getMyDashboardSummaryController,
 } from "../controllers/dashboard.controller";
 
 import { authenticate } from "../middlewares/auth.middleware";
@@ -23,6 +24,12 @@ router.get(
   "/technicians",
   authorize("ADMIN"),
   asyncHandler(getTechnicianStatisticsController),
+);
+
+router.get(
+  "/my-summary",
+  authorize("TECHNICIAN"),
+  asyncHandler(getMyDashboardSummaryController),
 );
 
 export default router;

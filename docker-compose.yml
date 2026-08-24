@@ -34,7 +34,6 @@ services:
       retries: 10
       start_period: 10s
 
-
   backend:
     build:
       context: ./backend
@@ -61,6 +60,18 @@ services:
       mysql:
         condition: service_healthy
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+
+    container_name: field-service-frontend
+
+    ports:
+      - "5173:80"
+
+    depends_on:
+      - backend
 
 volumes:
   mysql_data:
